@@ -7,19 +7,20 @@ class Gui {
     this.arcStats = new ArcStats(this.pos);
   }
 
-  show(aut, elem) {
-    if (elem != undefined) {
-      push();
-      noStroke();
+  show(element, aut) {
+    push();
+    if (element != undefined) {
+      translate(this.pos.x, this.pos.y);
       fill(...this.color);
-      rect(this.pos.x, this.pos.y, width, this.h);
-      pop();
-      if (elem instanceof Node) this.nodeStats.show(aut, elem);
-      if (elem instanceof Arc) this.arcStats.show(aut, elem);
+      noStroke();
+      rect(0, 0, width, this.h);
+      if (element instanceof Node) this.nodeStats.show(element, aut);
+      if (element instanceof Arc) this.arcStats.show(element, aut);
     } else {
       this.nodeStats.hide();
       this.arcStats.hide();
     }
+    pop();
   }
 
   isInsideGui(x, y) {
@@ -31,84 +32,59 @@ class Gui {
 
 class NodeStats {
   constructor(absPosVector) {
-    this.absPosVector = absPosVector;
     this.nameBox = new TextBox(absPosVector, 100, 30, 50, 20);
-    this.mkCheck = createCheckbox("Marked", false).position(this.absPosVector.x + 55, this.absPosVector.y + 70)
-      .style("color", "#F0F0F0").style('visibility', "hidden");
-    this.forbCheck = createCheckbox("Forbidden", false).position(this.absPosVector.x + 55, this.absPosVector.y + 90)
-      .style("color", "#F0F0F0").style('visibility', "hidden");
-    this.starting = createCheckbox("Starting", false).position(this.absPosVector.x + 55, this.absPosVector.y + 110)
-      .style("color", "#F0F0F0").style('visibility', "hidden");
+    this.mkCheck = createCheckbox("Marked", false).position(absPosVector.x + 55, absPosVector.y + 70)
+      .style("color", "#F0F0F0");
+    this.forbCheck = createCheckbox("Forbidden", false).position(absPosVector.x + 55, absPosVector.y + 90)
+      .style("color", "#F0F0F0");
+    this.starting = createCheckbox("Starting", false).position(absPosVector.x + 55, absPosVector.y + 110)
+      .style("color", "#F0F0F0");
 
-    this.changedValue = false;
-
-    this.mkCheck.changed(this.changeValues);
-    this.forbCheck.changed(this.changeValues);
-    this.starting.changed(this.changeValues);
+    this.oldVals = {
+      mk: false,
+      fb: false,
+      in: false
+    };
+    this.hide();
   }
 
-  show(aut, node) {
+  show(node, aut) {
     push();
-    translate(this.absPosVector.x, this.absPosVector.y);
-    fill(220);
-    text("x: " + node.pos.x + "\ny: " + node.pos.y, 20, 40);
-
-    let newName = this.nameBox.setParams("Name", node.name);
-    if (node.name != newName && this.nameBox.hasFocus() == false) {
-      aut.changeNode(node.name, newName);
-    }
-    this.nameBox.show();
-
-    //console.log(this.changedValue);
-    // for now is not modifiable because changedValue does not update
-    if (this.changedValue) {
-      node.marked = this.mkCheck.checked();
-      node.forbidden = this.forbCheck.checked();
-      node.starting = this.starting.checked();
-      // this.changedValue = false;
-    }
-
-    this.mkCheck.style('visibility', "visible").checked(node.marked);
-    this.forbCheck.style('visibility', "visible").checked(node.forbidden);
-    this.starting.style('visibility', "visible").checked(node.starting);
-
+    fill(230);
+    text("x: " + node.pos.x, 20, 30);
+    text("y: " + node.pos.y, 20, 50);
     pop();
+    this.starting.style('visibility', "visible");
+    this.mkCheck.style('visibility', "visible");
+    this.forbCheck.style('visibility', "visible");
+    if (this.mkCheck.checked() != node.marked) aut.changeMarking(node);
+    if (this.forbCheck.checked() != node.forbidden) aut.changeForbidden(node);
+    if (this.starting.checked() != node.starting) aut.changeStart(node);
+    this.nameBox.show(node, aut);
   }
 
   hide() {
     this.nameBox.hide();
-    this.mkCheck.style('visibility', "hidden").checked(false);
-    this.forbCheck.style('visibility', "hidden").checked(false);
-    this.starting.style('visibility', "hidden").checked(false);
-  }
-
-  changeValues() {
-    this.changedValue = true;
-    //console.log(this.changedValue);
+    this.mkCheck.style('visibility', "hidden");
+    this.forbCheck.style('visibility', "hidden");
+    this.starting.style('visibility', "hidden");
   }
 }
 
 class ArcStats {
   constructor(absPosVector) {
-    this.absPosVector = absPosVector;
     this.nameBox = new TextBox(absPosVector, 20, 30, 50, 20);
     this.controllable = createCheckbox("Controllable", true)
-      .position(this.absPosVector.x + 150, this.absPosVector.y + 40)
+      .position(absPosVector.x + 150, absPosVector.y + 40)
       .style('visibility', "hidden").style("color", "#F0F0F0");
   }
 
   show(aut, arc) {
-    push();
-    translate(this.absPosVector.x, this.absPosVector.y);
-    arc.name = this.nameBox.setParams("Name", arc.name);
-    this.nameBox.show();
 
-    arc.controllable = this.controllable.style('visibility', "visible").checked();
-    pop();
   }
 
   hide() {
-    this.controllable.style('visibility', "hidden").checked(true);
+    this.controllable.style('visibility', "hidden");
     this.nameBox.hide();
   }
 }
@@ -120,23 +96,16 @@ class TextBox {
     this.y = y;
     this.w = w;
     this.h = h;
-    this.title = "";
+    this.title = "Name: ";
     this.text = createInput().position(this.x + this.w - 5, this.absPos.y + this.y).size(this.w, this.h).style('visibility', "hidden");
   }
 
-  setParams(title, text) {
-    this.title = title;
-    if (!this.hasFocus()) { //check if the textBox is focused
-      this.text.value(text);
-    }
-    return this.text.value();
-  }
-
-  show() {
+  show(elem, aut) {
     push();
     stroke(0);
     fill(230);
     text(this.title, this.x, this.y - 5);
+    this.text.value(elem.name);
     this.text.style('visibility', "visible");
     pop();
   }

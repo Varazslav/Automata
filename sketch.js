@@ -32,7 +32,7 @@ function draw() {
     line(selected.pos.x, selected.pos.y, mouseX, mouseY);
     pop();
   }
-  gui.show(a, selected);
+  gui.show(selected, a);
 }
 
 function mouseDragged() {

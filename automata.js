@@ -2,7 +2,8 @@ class Automata {
   constructor(stateSet, alphabet, current, deltaf, marked, forbidden) {
     this.stateSet = stateSet || [];
     this.alphabet = alphabet || "";
-    this.current = current || stateSet[0];
+    this.starting = stateSet[0];
+    this.current = current;
     this.deltaf = deltaf; // deltaf is a matrix with 1 if the #col node is linked to the #row node
     this.marked = marked || stateSet;
     this.forbidden = forbidden || [];
@@ -23,11 +24,11 @@ class Automata {
       // check if forbidden
       let fb = this.forbidden.find(el => el == state) != undefined;
       // check if starting
-      let st = this.current == state;
+      let st = this.starting == state;
 
       let oldNode = oldNodes.find(el => el.name == state);
       if (oldNode != undefined) {
-        this.nodes.push(new Node(oldNode.pos.x, oldNode.pos.y, oldNode.name, oldNode.marked, oldNode.forbidden, oldNode.starting));
+        this.nodes.push(new Node(oldNode.pos.x, oldNode.pos.y, oldNode.name, oldNode.marked, oldNode.forbidden, st));
       } else {
         let xn = x || random(60, 600);
         let yn = y || random(100, 600);
@@ -152,11 +153,16 @@ class Automata {
     this.init();
   }
 
-  changeNode(name, newName, marked, forbidden) {
-    let i = this.stateSet.indexOf(name);
-    this.stateSet[i] = newName;
-    if (marked) this.marked.push(newName);
-    if (forbidden) this.forbidden.push(newName);
+  changeMarking(node) {
+    // TODO: if already marked remove else add
+  }
+
+  changeForbidden(node) {
+    // TODO: if already forbidden remove else add
+  }
+
+  changeStart(node) {
+    this.starting = node.name;
     this.init();
   }
 
