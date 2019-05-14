@@ -12,19 +12,27 @@ class Automata {
     this.init();
   }
 
-  init() {
-    randomSeed(350);
+  init(x, y) {
+    let oldNodes = this.nodes.slice(0);
     this.nodes = [];
     this.arcs = [];
     // set nodes based on stateSet, marked and forbidden parameters
     for (let state of this.stateSet) {
       // check if marked
-      let mk = this.marked.find((el) => el == state) != undefined;
+      let mk = this.marked.find(el => el == state) != undefined;
       // check if forbidden
-      let fb = this.forbidden.find((el) => el == state) != undefined;
+      let fb = this.forbidden.find(el => el == state) != undefined;
       // check if starting
       let st = this.current == state;
-      this.nodes.push(new Node(random(200, 400), random(200, 400), state, mk, fb, st));
+
+      let oldNode = oldNodes.find(el => el.name == state);
+      if (oldNode != undefined) {
+        this.nodes.push(new Node(oldNode.pos.x, oldNode.pos.y, oldNode.name, oldNode.marked, oldNode.forbidden, oldNode.starting));
+      } else {
+        let xn = x || random(60, 600);
+        let yn = y || random(100, 600);
+        this.nodes.push(new Node(xn, yn, state, mk, fb, st));
+      }
     }
 
     //set arcs based on deltaf
@@ -60,7 +68,7 @@ class Automata {
       this.deltaf[y].push(0);
     }
     this.deltaf.push(this.deltaf[0].slice().map(el => el = 0));
-    this.init();
+    this.init(x, y);
   }
 
   removeNode(index) {
