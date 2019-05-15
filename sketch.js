@@ -45,7 +45,10 @@ function mousePressed() {
     gui.show();
     if (selected != undefined) selected.highlight = false;
     selected = a.findClosestElem(mouseX, mouseY);
-    if (selected != undefined) selected.highlight = true;
+    if (selected != undefined) {
+      selected.highlight = true;
+      gui.setStats(selected);
+    }
   }
 }
 

@@ -28,7 +28,10 @@ class Automata {
 
       let oldNode = oldNodes.find(el => el.name == state);
       if (oldNode != undefined) {
-        this.nodes.push(new Node(oldNode.pos.x, oldNode.pos.y, oldNode.name, oldNode.marked, oldNode.forbidden, st));
+        oldNode.starting = st;
+        oldNode.marked = mk;
+        oldNode.forbidden = fb;
+        this.nodes.push(oldNode);
       } else {
         let xn = x || random(60, 600);
         let yn = y || random(100, 600);
@@ -148,27 +151,54 @@ class Automata {
     if (k != undefined) this.nodes[k].changePos(x, y);
   }
 
-  changeArcName(si, se, name) {
-    this.deltaf[se][si] = name;
+  changeNodeName(node, newName) {
+    let mi = this.marked.indexOf(node.name);
+    if (mi != -1) this.marked.splice(mi, 1);
+    let fi = this.forbidden.indexOf(node.name);
+    if (fi != -1) this.forbidden.splice(fi, 1);
+    let i = this.stateSet.indexOf(node.name);
+    this.stateSet[i] = newName;
+    node.name = newName;
+    this.changeMarking(node);
+    this.changeForbidden(node);
+    this.changeStart(node);
     this.init();
   }
 
   changeMarking(node) {
-    // TODO: if already marked remove else add
+    let mi = this.marked.indexOf(node.name);
+    if (mi != -1) this.marked.splice(mi, 1);
+    else this.marked.push(node.name);
+    this.init();
   }
 
   changeForbidden(node) {
-    // TODO: if already forbidden remove else add
+    let fi = this.forbidden.indexOf(node.name);
+    if (fi != -1) this.forbidden.splice(fi, 1);
+    else this.forbidden.push(node.name);
+    this.init();
   }
 
   changeStart(node) {
-    this.starting = node.name;
+    if (this.starting != node.name) this.starting = node.name;
+    else this.starting = "";
     this.init();
+  }
+
+  changeArcName(arc, newName) {
+    let ctr = arc.controllable;
+    let starti = this.stateSet.indexOf(arc.start.name);
+    let endi = this.stateSet.indexOf(arc.end.name);
+    this.deltaf[endi][starti] = newName;
+    this.init();
+    this.arcs.find(el => el.name == newName).controllable = ctr;
   }
 
   logData() {
     console.log(this.alphabet);
     console.log(this.stateSet);
+    console.log(this.marked);
+    console.log(this.forbidden);
     console.log(this.deltaf);
   }
 }

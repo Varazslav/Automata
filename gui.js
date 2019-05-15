@@ -23,6 +23,11 @@ class Gui {
     pop();
   }
 
+  setStats(elem) {
+    if (elem instanceof Node) this.nodeStats.setStats(elem);
+    if (elem instanceof Arc) this.arcStats.setStats(elem);
+  }
+
   isInsideGui(x, y) {
     return (x > this.pos.x && x < this.pos.x + width &&
       y > this.pos.y && y < this.pos.y + this.h);
@@ -40,11 +45,6 @@ class NodeStats {
     this.starting = createCheckbox("Starting", false).position(absPosVector.x + 55, absPosVector.y + 110)
       .style("color", "#F0F0F0");
 
-    this.oldVals = {
-      mk: false,
-      fb: false,
-      in: false
-    };
     this.hide();
   }
 
@@ -57,10 +57,18 @@ class NodeStats {
     this.starting.style('visibility', "visible");
     this.mkCheck.style('visibility', "visible");
     this.forbCheck.style('visibility', "visible");
+    let newName = this.nameBox.show(node, aut);
     if (this.mkCheck.checked() != node.marked) aut.changeMarking(node);
     if (this.forbCheck.checked() != node.forbidden) aut.changeForbidden(node);
     if (this.starting.checked() != node.starting) aut.changeStart(node);
-    this.nameBox.show(node, aut);
+    if (newName != undefined) aut.changeNodeName(node, newName);
+  }
+
+  setStats(node) {
+    this.nameBox.setName(node.name);
+    this.mkCheck.checked(node.marked);
+    this.forbCheck.checked(node.forbidden);
+    this.starting.checked(node.starting);
   }
 
   hide() {
@@ -79,8 +87,16 @@ class ArcStats {
       .style('visibility', "hidden").style("color", "#F0F0F0");
   }
 
-  show(aut, arc) {
+  show(arc, aut) {
+    this.controllable.style('visibility', "visible");
+    let newName = this.nameBox.show(arc, aut);
+    arc.controllable = this.controllable.checked();
+    if (newName != undefined) aut.changeArcName(arc, newName);
+  }
 
+  setStats(arc) {
+    this.controllable.checked(arc.controllable);
+    this.nameBox.setName(arc.name);
   }
 
   hide() {
@@ -97,17 +113,23 @@ class TextBox {
     this.w = w;
     this.h = h;
     this.title = "Name: ";
-    this.text = createInput().position(this.x + this.w - 5, this.absPos.y + this.y).size(this.w, this.h).style('visibility', "hidden");
+    this.text = createInput().position(this.x + this.w - 5, this.absPos.y + this.y).size(this.w, this.h);
+
+    this.hide();
   }
 
-  show(elem, aut) {
+  show(elem) {
     push();
     stroke(0);
     fill(230);
     text(this.title, this.x, this.y - 5);
-    this.text.value(elem.name);
     this.text.style('visibility', "visible");
+    if (this.text.value() != elem.name) return this.text.value();
     pop();
+  }
+
+  setName(name) {
+    this.text.value(name);
   }
 
   hide() {
