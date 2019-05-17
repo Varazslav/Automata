@@ -65,6 +65,35 @@ class Automata {
     }
   }
 
+  trim() {
+    let s = this.nodes.find(el => el.starting == true);
+    if (s.forbidden) console.log("Null automata");
+    let newState = this.getReachableTree(s);
+    // find missing states
+    let missingStates = this.stateSet.filter(el => newState.indexOf(el) < 0);
+    // remove from the current state all the nodes that are not present in the new state
+    for (let st of missingStates) {
+      let n = this.nodes.find(el => el.name == st);
+      this.removeNode(this.nodes.indexOf(n));
+    }
+  }
+
+  getReachableTree(node, visited) {
+    let vis = visited || [];
+    // if no more outer nodes and is not already visited and is not forbidden return it
+    if (!node.forbidden && vis.indexOf(node.name) == -1) {
+      if (node.out.length == 0) {
+        vis.push(node.name)
+        return vis;
+      }
+      vis.push(node.name);
+      for (let arc of node.out) {
+        vis = this.getReachableTree(arc.end, vis);
+      }
+    }
+    return vis;
+  }
+
   addNode(x, y) {
     let i = this.stateSet.length + 1;
     this.stateSet.push("q" + i);
@@ -76,11 +105,15 @@ class Automata {
   }
 
   removeNode(index) {
-    // find the index of the node to remove in the stateSet
+    // find the index of the node to remove in the stateSet, in the marked and in the forbidden
     let i = this.stateSet.indexOf(this.nodes[index].name);
-    this.stateSet.splice(i, 1);
+    let removed = this.stateSet.splice(i, 1);
+    let mi = this.marked.indexOf(removed[0]);
+    if (mi >= 0) this.marked.splice(mi, 1);
+    let fi = this.forbidden.indexOf(removed[0]);
+    if (fi >= 0) this.forbidden.splice(fi, 1);
     // remove the corresponding row
-    this.deltaf.splice(i);
+    this.deltaf.splice(i, 1);
     //remove the corresponding col
     this.deltaf.map(row => row.splice(i, 1));
 

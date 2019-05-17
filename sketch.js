@@ -54,7 +54,7 @@ function mousePressed() {
 
 function keyPressed() {
   switch (keyCode) {
-    case 32: // n
+    case 32: // SPACE
       a.logData();
       break;
     case 78: // n
@@ -62,6 +62,9 @@ function keyPressed() {
       break;
     case 46: // canc
       a.removeClosestNode(mouseX, mouseY);
+      break;
+    case 84: // t
+      a.trim();
       break;
   }
   console.log(keyCode);
