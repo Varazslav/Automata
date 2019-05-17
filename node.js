@@ -1,6 +1,7 @@
 class Node {
   constructor(x, y, name, marked, forbidden, starting) {
     this.pos = createVector(x, y);
+    this.controllable = true;
     this.highlight = false;
     // this.index = 0;
     this.name = name;
@@ -46,6 +47,14 @@ class Node {
       triangle(endPos - 10, -5, endPos - 10, 5, endPos, 0);
     }
     pop();
+  }
+
+  checkControllability() {
+    this.controllable = true;
+    for (let arc of this.out) {
+      if (!arc.controllable) this.controllable = false;
+    }
+    return this.controllable;
   }
 
   changePos(newX, newY) {

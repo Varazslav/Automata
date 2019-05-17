@@ -6,6 +6,7 @@ let threshold = 60;
 
 let states = ["q1", "q2", "q3"];
 let events = "abc";
+let uncontrollableEvents = "c";
 let startingState = "q1";
 let markedStates = [];
 let forbiddenStates = ["q3"];
@@ -19,7 +20,7 @@ let deltaf = [
 function setup() {
   createCanvas(800, 900);
   randomSeed(8);
-  a = new Automata(states, events, startingState, deltaf, markedStates, forbiddenStates);
+  a = new Automata(states, events, uncontrollableEvents, startingState, deltaf, markedStates, forbiddenStates);
   gui = new Gui();
 }
 
@@ -56,7 +57,8 @@ function keyPressed() {
   if (!gui.checkFocus()) {
     switch (keyCode) {
       case 32: // SPACE
-        a.logData();
+        // a.logData();
+        console.log(a);
         break;
       case 78: // n
         a.addNode(mouseX, mouseY);

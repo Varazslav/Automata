@@ -1,7 +1,8 @@
 class Automata {
-  constructor(stateSet, alphabet, current, deltaf, marked, forbidden) {
+  constructor(stateSet, alphabet, uncontrollableEvents, current, deltaf, marked, forbidden) {
     this.stateSet = stateSet || [];
     this.alphabet = alphabet || "";
+    this.uncontrollableEvents = uncontrollableEvents || "";
     this.starting = stateSet[0];
     this.current = current;
     this.deltaf = deltaf; // deltaf is a matrix with 1 if the #col node is linked to the #row node
@@ -45,7 +46,9 @@ class Automata {
         //start: this.nodes[x] - end: this.nodes[y]
         if (this.deltaf[y][x] != 0) {
           // create a new arc going from the start node to the end node
+          let contr = this.uncontrollableEvents.indexOf(this.deltaf[y][x]) < 0;
           let newArc = new Arc(this.nodes[x], this.nodes[y], this.deltaf[y][x]);
+          newArc.controllable = contr;
           //set it to the start node.out
           this.nodes[x].out.push(newArc);
           // set the out node.in to the created arc;
@@ -53,6 +56,10 @@ class Automata {
           this.arcs.push(newArc);
         }
       }
+    }
+
+    for (let node of this.nodes) {
+      let c = node.checkControllability();
     }
   }
 
@@ -219,25 +226,21 @@ class Automata {
   }
 
   changeArcName(arc, newName) {
-    let ctr = arc.controllable;
     let starti = this.stateSet.indexOf(arc.start.name);
     let endi = this.stateSet.indexOf(arc.end.name);
     this.deltaf[endi][starti] = newName;
     this.init();
-    this.arcs.find(el => el.name == newName).controllable = ctr;
   }
 
   exportModel() {
     let json = {};
     json.stateSet = this.stateSet;
     json.alphabet = this.alphabet;
+    json.uncontrollableEvents = this.uncontrollableEvents;
     json.starting = this.starting;
     json.deltaf = this.deltaf;
     json.marked = this.marked;
     json.forbidden = this.forbidden;
-    let controllableArcs = [];
-    this.arcs.map(arc => controllableArcs.push(arc.controllable));
-    json.controllableArcs = controllableArcs;
     let nodePos = [];
     this.nodes.map(node => nodePos.push({
       x: node.pos.x,
@@ -251,14 +254,12 @@ class Automata {
     loadJSON(automataFileName, json => {
       this.stateSet = json.stateSet;
       this.alphabet = json.alphabet;
+      this.uncontrollableEvents = json.uncontrollableEvents;
       this.starting = json.starting;
       this.deltaf = json.deltaf;
       this.marked = json.marked;
       this.forbidden = json.forbidden;
       this.init();
-      for (let i = 0; i < this.arcs.length; i++) {
-        this.arcs[i].controllable = json.controllableArcs[i];
-      }
       for (let i = 0; i < this.nodes.length; i++) {
         this.nodes[i].pos.x = json.nodePos[i].x;
         this.nodes[i].pos.y = json.nodePos[i].y;

@@ -111,25 +111,18 @@ class NodeStats {
 class ArcStats {
   constructor(absPosVector) {
     this.nameBox = new TextBox(absPosVector, 20, 30, 50, 20);
-    this.controllable = createCheckbox("Controllable", true)
-      .position(absPosVector.x + 150, absPosVector.y + 40)
-      .style('visibility', "hidden").style("color", "#F0F0F0");
   }
 
   show(arc, aut) {
-    this.controllable.style('visibility', "visible");
     let newName = this.nameBox.show(arc, aut);
-    arc.controllable = this.controllable.checked();
     if (newName != undefined) aut.changeArcName(arc, newName);
   }
 
   setStats(arc) {
-    this.controllable.checked(arc.controllable);
     this.nameBox.setName(arc.name);
   }
 
   hide() {
-    this.controllable.style('visibility', "hidden");
     this.nameBox.hide();
   }
 }

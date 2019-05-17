@@ -1,19 +1,11 @@
 class Arc {
-  constructor(start, end, name, controllable) {
+  constructor(start, end, name) {
     this.start = start;
     this.end = end;
     this.name = name;
-    this.controllable = controllable || true;
+    this.controllable = true;
     this.highlight = false;
   }
-
-  // TODO:
-  // adding a grafical direction to the arcs
-  // the logical direction is already implemented in the
-  // in/out property of the nodes
-  //
-  // adding a self loop if the start and end coincide
-  // and setting the position somewere clickable
 
   show() {
     push();
