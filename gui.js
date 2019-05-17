@@ -5,10 +5,30 @@ class Gui {
     this.pos = createVector(0, height - this.h);
     this.nodeStats = new NodeStats(this.pos);
     this.arcStats = new ArcStats(this.pos);
+
+    this.fileName = createInput("File name");
+    this.fileButton = createButton("Load").mousePressed(() => {
+      a.importModel(this.fileName.value());
+    });
+
+    this.legend = true;
   }
 
   show(element, aut) {
     push();
+    // legend
+    fill(10);
+    if (this.legend) {
+      text("SP  - to log automata data", width - 180, 20);
+      text("N   - to add new node", width - 180, 40);
+      text("DEL - to remove node", width - 180, 60);
+      text("T   - to trim automata", width - 180, 80);
+      text("S   - to save automata", width - 180, 100);
+      text("I   - to show/hide legend", width - 180, 120);
+    } else {
+      text("Press 'i' for legend", width - 120, 20)
+    }
+    // node / arcs info
     if (element != undefined) {
       translate(this.pos.x, this.pos.y);
       fill(...this.color);
@@ -31,6 +51,15 @@ class Gui {
   isInsideGui(x, y) {
     return (x > this.pos.x && x < this.pos.x + width &&
       y > this.pos.y && y < this.pos.y + this.h);
+  }
+
+  checkFocus() {
+    if (
+      this.nodeStats.nameBox.hasFocus() ||
+      this.arcStats.nameBox.hasFocus() ||
+      document.activeElement == this.fileName.elt
+    ) return true;
+    return false;
   }
 
 }

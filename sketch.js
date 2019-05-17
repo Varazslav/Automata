@@ -53,21 +53,33 @@ function mousePressed() {
 }
 
 function keyPressed() {
-  switch (keyCode) {
-    case 32: // SPACE
-      a.logData();
-      break;
-    case 78: // n
-      a.addNode(mouseX, mouseY);
-      break;
-    case 46: // canc
-      a.removeClosestNode(mouseX, mouseY);
-      break;
-    case 84: // t
-      a.trim();
-      break;
+  if (!gui.checkFocus()) {
+    switch (keyCode) {
+      case 32: // SPACE
+        a.logData();
+        break;
+      case 78: // n
+        a.addNode(mouseX, mouseY);
+        break;
+      case 46: // canc
+        a.removeClosestNode(mouseX, mouseY);
+        break;
+      case 73: // i
+        gui.legend = !gui.legend;
+        break;
+      case 76: // l
+        a.importModel("automata.json");
+        break;
+      case 83: // s
+        a.exportModel();
+        break;
+      case 84: // t
+        a.trim();
+        break;
+      default:
+        console.log(key, keyCode);
+    }
   }
-  console.log(keyCode);
 }
 
 function mouseReleased() {

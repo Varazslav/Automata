@@ -227,6 +227,45 @@ class Automata {
     this.arcs.find(el => el.name == newName).controllable = ctr;
   }
 
+  exportModel() {
+    let json = {};
+    json.stateSet = this.stateSet;
+    json.alphabet = this.alphabet;
+    json.starting = this.starting;
+    json.deltaf = this.deltaf;
+    json.marked = this.marked;
+    json.forbidden = this.forbidden;
+    let controllableArcs = [];
+    this.arcs.map(arc => controllableArcs.push(arc.controllable));
+    json.controllableArcs = controllableArcs;
+    let nodePos = [];
+    this.nodes.map(node => nodePos.push({
+      x: node.pos.x,
+      y: node.pos.y
+    }));
+    json.nodePos = nodePos;
+    saveJSON(json, "automata.json")
+  }
+
+  importModel(automataFileName) {
+    loadJSON(automataFileName, json => {
+      this.stateSet = json.stateSet;
+      this.alphabet = json.alphabet;
+      this.starting = json.starting;
+      this.deltaf = json.deltaf;
+      this.marked = json.marked;
+      this.forbidden = json.forbidden;
+      this.init();
+      for (let i = 0; i < this.arcs.length; i++) {
+        this.arcs[i].controllable = json.controllableArcs[i];
+      }
+      for (let i = 0; i < this.nodes.length; i++) {
+        this.nodes[i].pos.x = json.nodePos[i].x;
+        this.nodes[i].pos.y = json.nodePos[i].y;
+      }
+    }, err => console.log("File not found"));
+  }
+
   logData() {
     console.log(this.alphabet);
     console.log(this.stateSet);
