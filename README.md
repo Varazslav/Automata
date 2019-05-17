@@ -9,8 +9,8 @@ Legend
 
 TODOs
 -------
-+ Implement Trimming
-+ Implement saving, importing and exporting of existing automata
++ ~~Implement Trimming~~
++ ~~Implement saving, importing and exporting of existing automata~~
 + Implement synchronous composition between automatas
 + implement a simulation of the automata
 
