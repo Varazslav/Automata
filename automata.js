@@ -42,6 +42,7 @@ class Automata {
 
     //set arcs based on deltaf
     for (let x = 0; x < this.stateSet.length; x++) {
+      this.nodes[x].out = [];
       for (let y = 0; y < this.stateSet.length; y++) {
         //start: this.nodes[x] - end: this.nodes[y]
         if (this.deltaf[y][x] != 0) {
@@ -83,6 +84,28 @@ class Automata {
       let n = this.nodes.find(el => el.name == st);
       this.removeNode(this.nodes.indexOf(n));
     }
+  }
+
+  extension() {
+    let s = this.nodes.find(el => el.starting == true);
+    if (s.forbidden) console.log("Null automata");
+    let newState = this.getReachableTree(s);
+    // find missing states
+    let missingStates = this.stateSet.filter(el => newState.indexOf(el) < 0);
+    // remove from the current state all the nodes that are not present in the new state
+    // and the uncontrollable ones that lead to forbidden nodes
+    for (let st of missingStates) {
+      let n = this.nodes.find(el => el.name == st);
+      if (n.forbidden) {
+        // if the node to remove is forbidden then check where it came from, if it
+        // came from an uncontrollable node, remove even that one
+        for (let a of n.in) {
+          if (!a.start.controllable) this.removeNode(this.nodes.indexOf(a.start));
+        }
+      }
+    }
+
+    this.trim();
   }
 
   getReachableTree(node, visited) {

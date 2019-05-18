@@ -75,6 +75,9 @@ function keyPressed() {
       case 83: // s
         a.exportModel();
         break;
+      case 69: // e
+        a.extension();
+        break;
       case 84: // t
         a.trim();
         break;

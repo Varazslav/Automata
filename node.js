@@ -22,10 +22,11 @@ class Node {
     if (this.highlight) stroke(255, 100, 50);
     circle(this.pos.x, this.pos.y, this.radius * 2);
     strokeWeight(1);
-    fill(10);
     noStroke();
     textAlign(CENTER, CENTER);
     textSize(16);
+    fill(10);
+    if (!this.controllable) fill(255, 100, 50);
     text(this.name, this.pos.x, this.pos.y);
     if (this.forbidden) {
       stroke(10);
