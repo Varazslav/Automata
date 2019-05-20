@@ -162,11 +162,13 @@ class Automata {
             endIndex = states.indexOf(arc1.end.name + "-" + arc2.end.name);
             deltaf[endIndex][startIndex] = arc1.name;
             addedEvents.push(arc1.name);
-          } else if (a2.alphabet.indexOf(arc1.name) < 0) {
+          }
+          if (a2.alphabet.indexOf(arc1.name) < 0) {
             endIndex = states.indexOf(arc1.end.name + "-" + currNode2.name);
             deltaf[endIndex][startIndex] = arc1.name;
             addedEvents.push(arc1.name);
-          } else if (a1.alphabet.indexOf(arc2.name) < 0) {
+          }
+          if (a1.alphabet.indexOf(arc2.name) < 0) {
             endIndex = states.indexOf(currNode1.name + "-" + arc2.end.name);
             deltaf[endIndex][startIndex] = arc2.name;
             addedEvents.push(arc2.name);
@@ -180,8 +182,9 @@ class Automata {
       let cn1 = Automata.getNextNode(currNode1, e);
       let cn2 = Automata.getNextNode(currNode2, e);
 
-      return Automata.calculateDeltafSync(cn1, cn2, deltaf, states, a1, a2, visited);
+      deltaf = Automata.calculateDeltafSync(cn1, cn2, deltaf, states, a1, a2, visited);
     }
+    return deltaf;
   }
 
   static getNextNode(currNode, event) {
