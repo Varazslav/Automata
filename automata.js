@@ -126,7 +126,7 @@ class Automata {
     let currNode1 = a1.nodes.find(n => n.name == a1.starting);
     let currNode2 = a2.nodes.find(n => n.name == a2.starting);
 
-    Automata.calculateDeltafSync(currNode1, currNode2, deltaf, states, a1, a2);
+    Automata.calculateDeltafSync(currNode1, currNode2, deltaf, states, a1, a2, []);
 
     let syncAut = new Automata(states, alphabet, uncEvents, starting, deltaf, marked, forbidden);
     syncAut.init();
@@ -134,8 +134,10 @@ class Automata {
     return syncAut;
   }
 
-  static calculateDeltafSync(currNode1, currNode2, deltaf, states, a1, a2) {
+  static calculateDeltafSync(currNode1, currNode2, deltaf, states, a1, a2, visited) {
     let startIndex = states.indexOf(currNode1.name + "-" + currNode2.name);
+    if (visited.indexOf(currNode1.name + "-" + currNode2.name) > -1) return deltaf;
+    else visited.push(currNode1.name + "-" + currNode2.name);
     let addedEvents = [];
 
     let endIndex;
@@ -178,7 +180,7 @@ class Automata {
       let cn1 = Automata.getNextNode(currNode1, e);
       let cn2 = Automata.getNextNode(currNode2, e);
 
-      return Automata.calculateDeltafSync(cn1, cn2, deltaf, states, a1, a2);
+      return Automata.calculateDeltafSync(cn1, cn2, deltaf, states, a1, a2, visited);
     }
   }
 

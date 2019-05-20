@@ -66,9 +66,9 @@ function keyPressed() {
       case 67: // c
         let a1 = new Automata([], "", "", "", [], [], []);
         let a2 = new Automata([], "", "", "", [], [], []);
-        a1.importModel("aut_1.json")
+        a1.importModel("m1_m2.json")
           .then(obj => a1 = obj)
-          .then(() => a2.importModel("aut_2.json"))
+          .then(() => a2.importModel("b.json"))
           .then(obj => a2 = obj)
           .then(() => a = Automata.syncComp(a1, a2));
         break;

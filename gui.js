@@ -57,8 +57,11 @@ class Gui {
   }
 
   checkFocus() {
-    if (
-      this.nodeStats.nameBox.hasFocus() ||
+    let hasFocus;
+    for (let box of this.nodeStats.outArcs) {
+      if (box.hasFocus()) return true;
+    }
+    if (this.nodeStats.nameBox.hasFocus() ||
       this.arcStats.nameBox.hasFocus() ||
       document.activeElement == this.fileName.elt
     ) return true;
@@ -70,12 +73,15 @@ class Gui {
 class NodeStats {
   constructor(absPosVector) {
     this.nameBox = new TextBox(absPosVector, 100, 30, 50, 20);
+    this.absPos = absPosVector;
     this.mkCheck = createCheckbox("Marked", false).position(absPosVector.x + 55, absPosVector.y + 70)
       .style("color", "#F0F0F0");
     this.forbCheck = createCheckbox("Forbidden", false).position(absPosVector.x + 55, absPosVector.y + 90)
       .style("color", "#F0F0F0");
     this.starting = createCheckbox("Starting", false).position(absPosVector.x + 55, absPosVector.y + 110)
       .style("color", "#F0F0F0");
+
+    this.outArcs = [];
 
     this.hide();
   }
@@ -94,9 +100,19 @@ class NodeStats {
     if (this.forbCheck.checked() != node.forbidden) aut.changeForbidden(node);
     if (this.starting.checked() != node.starting) aut.changeStart(node);
     if (newName != undefined) aut.changeNodeName(node, newName);
+
+    for (let i = 0; i < this.outArcs.length; i++) {
+      let newArcName = this.outArcs[i].show(node, aut);
+      aut.changeArcName(node.out[i], newArcName);
+    }
   }
 
   setStats(node) {
+    this.outArcs = [];
+    for (let i = 0; i < node.out.length; i++) {
+      this.outArcs.push(new TextBox(this.absPos, 300, 30 + 30 * i, 50, 20));
+      this.outArcs[i].setName(node.out[i].name);
+    }
     this.nameBox.setName(node.name);
     this.mkCheck.checked(node.marked);
     this.forbCheck.checked(node.forbidden);
@@ -108,6 +124,10 @@ class NodeStats {
     this.mkCheck.style('visibility', "hidden");
     this.forbCheck.style('visibility', "hidden");
     this.starting.style('visibility', "hidden");
+
+    for (let box of this.outArcs) {
+      box.hide();
+    }
   }
 }
 
