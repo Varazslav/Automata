@@ -70,8 +70,7 @@ function keyPressed() {
           .then(obj => a1 = obj)
           .then(() => a2.importModel("aut_2.json"))
           .then(obj => a2 = obj)
-          // .then(() => console.log(a1, a2));
-          .then(() => Automata.syncComp(a1, a2));
+          .then(() => a = Automata.syncComp(a1, a2));
         break;
       case 46: // canc
         a.removeClosestNode(mouseX, mouseY);

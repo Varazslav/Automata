@@ -3,8 +3,8 @@ class Automata {
     this.stateSet = stateSet || [];
     this.alphabet = alphabet || "";
     this.uncontrollableEvents = uncontrollableEvents || "";
-    this.starting = stateSet[0];
-    this.current = current;
+    this.current = current || stateSet[0];
+    this.starting = current;
     this.deltaf = deltaf; // deltaf is a matrix with 1 if the #col node is linked to the #row node
     this.marked = marked || stateSet;
     this.forbidden = forbidden || [];
@@ -123,16 +123,69 @@ class Automata {
       }
     }
 
+    let currNode1 = a1.nodes.find(n => n.name == a1.starting);
+    let currNode2 = a2.nodes.find(n => n.name == a2.starting);
 
-    console.log(deltaf);
+    Automata.calculateDeltafSync(currNode1, currNode2, deltaf, states, a1, a2);
+
+    let syncAut = new Automata(states, alphabet, uncEvents, starting, deltaf, marked, forbidden);
+    syncAut.init();
+
+    return syncAut;
   }
 
-  calculateDeltaf(currNode, deltaf) {
+  static calculateDeltafSync(currNode1, currNode2, deltaf, states, a1, a2) {
+    let startIndex = states.indexOf(currNode1.name + "-" + currNode2.name);
+    let addedEvents = [];
 
+    let endIndex;
+    if (currNode1.out.length == 0 && currNode2.out.length > 0) {
+      for (let arc2 of currNode2.out) {
+        if (a1.alphabet.indexOf(arc2.name) < 0) {
+          endIndex = states.indexOf(currNode1.name + "-" + arc2.end.name);
+          deltaf[endIndex][startIndex] = arc2.name;
+          addedEvents.push(arc2.name);
+        }
+      }
+    } else if (currNode1.out.length > 0 && currNode2.out.length == 0) {
+      if (a2.alphabet.indexOf(arc1.name) < 0) {
+        endIndex = states.indexOf(arc1.end.name + "-" + currNode2.name);
+        deltaf[endIndex][startIndex] = arc1.name;
+        addedEvents.push(arc1.name);
+      }
+    } else {
+      for (let arc1 of currNode1.out) {
+        for (let arc2 of currNode2.out) {
+          if (arc1.name == arc2.name) {
+            endIndex = states.indexOf(arc1.end.name + "-" + arc2.end.name);
+            deltaf[endIndex][startIndex] = arc1.name;
+            addedEvents.push(arc1.name);
+          } else if (a2.alphabet.indexOf(arc1.name) < 0) {
+            endIndex = states.indexOf(arc1.end.name + "-" + currNode2.name);
+            deltaf[endIndex][startIndex] = arc1.name;
+            addedEvents.push(arc1.name);
+          } else if (a1.alphabet.indexOf(arc2.name) < 0) {
+            endIndex = states.indexOf(currNode1.name + "-" + arc2.end.name);
+            deltaf[endIndex][startIndex] = arc2.name;
+            addedEvents.push(arc2.name);
+          }
+        }
+      }
+    }
+
+    if (addedEvents.length == 0) return deltaf;
+    for (let e of addedEvents) {
+      let cn1 = Automata.getNextNode(currNode1, e);
+      let cn2 = Automata.getNextNode(currNode2, e);
+
+      return Automata.calculateDeltafSync(cn1, cn2, deltaf, states, a1, a2);
+    }
   }
 
-  getNextNode(currNode, event) {
-    return currNode.out.find(arc => arc.name == event).end;
+  static getNextNode(currNode, event) {
+    let nxtArc = currNode.out.find(arc => arc.name == event)
+    if (nxtArc != undefined) return nxtArc.end;
+    else return currNode;
   }
 
   trim() {
