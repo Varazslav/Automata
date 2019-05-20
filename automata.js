@@ -73,6 +73,68 @@ class Automata {
     }
   }
 
+  static syncComp(a1, a2) {
+    let states = [];
+    for (let s1 of a1.stateSet) {
+      for (let s2 of a2.stateSet) {
+        states.push(s1 + "-" + s2);
+      }
+    }
+
+    let alphabet = a1.alphabet;
+    for (let i = 0; i < a2.alphabet.length; i++) {
+      // add only events that are not already present
+      if (alphabet.indexOf(a2.alphabet[i]) < 0) alphabet += a2.alphabet[i];
+    }
+
+    let uncEvents = a1.uncontrollableEvents;
+    for (let i = 0; i < a2.uncontrollableEvents.length; i++) {
+      // add only events that are not already present
+      if (uncEvents.indexOf(a2.uncontrollableEvents[i]) < 0) uncEvents += a2.uncontrollableEvents[i];
+    }
+
+    let starting = a1.starting + "-" + a2.starting;
+
+    let marked = [];
+    for (let m1 of a1.marked) {
+      for (let m2 of a2.marked) {
+        marked.push(m1 + "-" + m2);
+      }
+    }
+
+    let forbidden = [];
+    for (let f1 of a1.forbidden) {
+      for (let s2 of a2.stateSet) {
+        forbidden.push(f1 + "-" + s2);
+      }
+    }
+    for (let f2 of a2.forbidden) {
+      for (let s1 of a1.stateSet) {
+        forbidden.push(s1 + "-" + f2);
+      }
+    }
+
+    let deltaf = [];
+    // init deltaf with zeros
+    for (let y = 0; y < states.length; y++) {
+      deltaf[y] = [];
+      for (let x = 0; x < states.length; x++) {
+        deltaf[y][x] = 0;
+      }
+    }
+
+
+    console.log(deltaf);
+  }
+
+  calculateDeltaf(currNode, deltaf) {
+
+  }
+
+  getNextNode(currNode, event) {
+    return currNode.out.find(arc => arc.name == event).end;
+  }
+
   trim() {
     let s = this.nodes.find(el => el.starting == true);
     if (s.forbidden) console.log("Null automata");
@@ -255,7 +317,8 @@ class Automata {
     this.init();
   }
 
-  exportModel() {
+  exportModel(name) {
+    name = name || "automata.json"
     let json = {};
     json.stateSet = this.stateSet;
     json.alphabet = this.alphabet;
@@ -270,11 +333,17 @@ class Automata {
       y: node.pos.y
     }));
     json.nodePos = nodePos;
-    saveJSON(json, "automata.json")
+    saveJSON(json, name)
   }
 
-  importModel(automataFileName) {
-    loadJSON(automataFileName, json => {
+  async importModel(automataFileName) {
+    return httpDo(automataFileName)
+      .then(json => this.statsFromJSON(json))
+      .catch(err => console.log("ERROR: " + err));
+  }
+
+  statsFromJSON(json) {
+    return new Promise((res, rej) => {
       this.stateSet = json.stateSet;
       this.alphabet = json.alphabet;
       this.uncontrollableEvents = json.uncontrollableEvents;
@@ -287,7 +356,8 @@ class Automata {
         this.nodes[i].pos.x = json.nodePos[i].x;
         this.nodes[i].pos.y = json.nodePos[i].y;
       }
-    }, err => console.log("File not found"));
+      return res(this);
+    });
   }
 
   logData() {

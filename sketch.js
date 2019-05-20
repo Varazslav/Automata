@@ -63,6 +63,16 @@ function keyPressed() {
       case 78: // n
         a.addNode(mouseX, mouseY);
         break;
+      case 67: // c
+        let a1 = new Automata([], "", "", "", [], [], []);
+        let a2 = new Automata([], "", "", "", [], [], []);
+        a1.importModel("aut_1.json")
+          .then(obj => a1 = obj)
+          .then(() => a2.importModel("aut_2.json"))
+          .then(obj => a2 = obj)
+          // .then(() => console.log(a1, a2));
+          .then(() => Automata.syncComp(a1, a2));
+        break;
       case 46: // canc
         a.removeClosestNode(mouseX, mouseY);
         break;

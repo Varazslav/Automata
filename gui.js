@@ -7,7 +7,10 @@ class Gui {
     this.arcStats = new ArcStats(this.pos);
 
     this.fileName = createInput("File name");
-    this.fileButton = createButton("Load").mousePressed(() => {
+    this.saveButton = createButton("Save").mousePressed(() => {
+      a.exportModel(this.fileName.value());
+    });
+    this.loadButton = createButton("Load").mousePressed(() => {
       a.importModel(this.fileName.value());
     });
 
